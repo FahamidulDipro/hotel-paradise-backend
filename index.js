@@ -1,6 +1,6 @@
 const express = require("express");
 const cors = require("cors");
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -28,9 +28,33 @@ async function run() {
       .db("hotel_db")
       .collection("reservation");
 
-    app.get("/reservations", async (req, res) => {
-      const reservations = await reservationCollection.find().toArray();
-      res.send(reservations);
+    const roomsCollection = client.db("hotel_db").collection("rooms");
+
+    app.get("/rooms", async (req, res) => {
+      const rooms = await roomsCollection.find().toArray();
+      res.send(rooms);
+    });
+    //Adding Reservation info to database
+    app.post("/reservations", async (req, res) => {
+      const reservationInfo = req.body;
+      const result = await reservationCollection.insertOne(reservationInfo);
+      res.send(result);
+    });
+    //Updating Reservation Status
+    app.put("/rooms/:id", async (req, res) => {
+      const id = req.params.id;
+      const reservationInfo = req.body;
+      const filter = { _id: ObjectId(id) };
+      const option = { upsert: true };
+      const updatedDoc = {
+        $set: reservationInfo,
+      };
+      const result = await roomsCollection.updateOne(
+        filter,
+        updatedDoc,
+        option
+      );
+      res.send(result);
     });
     console.log("db connected!");
   } finally {
