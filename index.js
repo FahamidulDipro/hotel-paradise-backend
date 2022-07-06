@@ -29,6 +29,7 @@ async function run() {
       .collection("reservation");
 
     const roomsCollection = client.db("hotel_db").collection("rooms");
+    const userCollection = client.db("hotel_db").collection("users");
 
     app.get("/rooms", async (req, res) => {
       const rooms = await roomsCollection.find().toArray();
@@ -55,6 +56,26 @@ async function run() {
         option
       );
       res.send(result);
+    });
+    //Updating Users Registration Information
+    app.put("/user/:email", async (req, res) => {
+      const email = req.params.email;
+
+      const user = req.body;
+      console.log(email, user);
+      const filter = { email: email };
+      const option = { upsert: true };
+
+      const updatedDoc = {
+        $set: user,
+      };
+      const result = await userCollection.updateOne(filter, updatedDoc, option);
+
+      res.send(result);
+    });
+
+    app.get("/users", async (req, res) => {
+      const user = await userCollection.insertOne().toArray();
     });
     console.log("db connected!");
   } finally {
