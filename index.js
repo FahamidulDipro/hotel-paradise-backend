@@ -41,6 +41,11 @@ async function run() {
       const result = await reservationCollection.insertOne(reservationInfo);
       res.send(result);
     });
+    //Getting Reservation info
+    app.get("/reservations", async (req, res) => {
+      const reservations = await reservationCollection.find().toArray();
+      res.send(reservations);
+    });
     //Updating Reservation Status
     app.put("/rooms/:id", async (req, res) => {
       const id = req.params.id;
@@ -73,9 +78,22 @@ async function run() {
 
       res.send(result);
     });
-
+    //Getting all users
     app.get("/users", async (req, res) => {
-      const user = await userCollection.insertOne().toArray();
+      const users = await userCollection.find().toArray();
+      res.send(users);
+    });
+    //Updating Price
+    app.put("/updatePrice", async (req, res) => {
+      const { roomId, price } = req.body;
+      const filter = { _id: ObjectId(roomId) };
+      const option = { upsert: false };
+      const updateDoc = {
+        $set: { price: price },
+      };
+      const result = await roomsCollection.updateOne(filter, updateDoc, option);
+      res.send(result);
+      console.log(roomId, price);
     });
     console.log("db connected!");
   } finally {
