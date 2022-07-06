@@ -95,6 +95,12 @@ async function run() {
       res.send(result);
       console.log(roomId, price);
     });
+    //Adding New Room
+    app.post("/addRoom", async (req, res) => {
+      const roomData = req.body;
+      const result = await roomsCollection.insertOne(roomData);
+      res.send(result);
+    });
     console.log("db connected!");
   } finally {
   }
